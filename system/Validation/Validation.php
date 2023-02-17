@@ -296,7 +296,21 @@ class Validation implements ValidationInterface
             if ($this->isClosure($rule)) {
                 $passed = $rule($value, $data, $error, $field);
             } elseif ($isCallable) {
-                $passed = $param === false ? $rule($value) : $rule($value, $param, $data);
+                //$passed = $param === false ? $rule($value) : $rule($value, $param, $data);
+                // php8.2 compatibility
+                if ($param === false) {
+                    try {
+                        $passed = $rule($value);
+                    } catch (Exception $e) {
+                        $passed = false;
+                    }
+                } else {
+                    try {
+                        $passed = $rule($value, $param, $data);
+                    } catch (Exception $e) {
+                        $passed = false;
+                    }
+                }
             } else {
                 $found = false;
 
